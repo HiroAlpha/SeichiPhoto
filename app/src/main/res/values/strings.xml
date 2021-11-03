@@ -12,5 +12,6 @@
     <string name="unknownError">Unknown error has occured</string>
     <string name="openCVNot">ERROR:OpenCV Not Found</string>
     <string name="error_cameraPermission">ERROR : Camera permission denied</string>
+    <string name="error_noBitmap">ERROR : Image not defined</string>
     <string name="error_cameraSession">ERROR : Faild to open camera session</string>
 </resources>

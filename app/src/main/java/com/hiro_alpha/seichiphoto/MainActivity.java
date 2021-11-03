@@ -13,13 +13,20 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.Insets;
+import android.graphics.Point;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.Display;
 import android.view.View;
+import android.view.WindowInsets;
+import android.view.WindowManager;
+import android.view.WindowMetrics;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -40,6 +47,8 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private Button getImage, cameraStart;
+
+    private Bitmap overlayBitmap = null;
 
     //OpenCV読み込み用
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
@@ -106,8 +115,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         if (view == cameraStart){
-            Intent intent = new Intent(this, CameraActivity.class);
-            startActivity(intent);
+            if (overlayBitmap != null) {
+                //ハンドラーにBitmapをセット
+                BitmapHandler handler = (BitmapHandler)this.getApplication();
+                handler.setObj(overlayBitmap);
+
+                //カメラ開始
+                Intent intent = new Intent(this, CameraActivity.class);
+                startActivity(intent);
+            } else {
+                Toast.makeText(getApplicationContext() , getString(R.string.error_noBitmap), Toast.LENGTH_LONG).show();
+            }
         }
     }
 
@@ -195,5 +213,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         bitmapTrans.eraseColor(Color.argb(0,0,0,0));
         bitmapTrans.setPixels(pixels, 0, width, 0, 0, width, height);
+
+        overlayBitmap = bitmapTrans;
     }
 }
