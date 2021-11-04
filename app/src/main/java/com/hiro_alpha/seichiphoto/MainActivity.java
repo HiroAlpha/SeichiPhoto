@@ -6,6 +6,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.content.Context;
@@ -79,6 +80,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{
                     Manifest.permission.CAMERA
+            }, 1);
+        }
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
             }, 1);
         }
     }
@@ -200,7 +207,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     //背景透過
     private void makeTransparent(Bitmap bitmap, int width, int height){
         int[] pixels = new int[width * height];
-        int color = bitmap.getPixel(0,0);
+        int color = Color.rgb(255,255,255);
 
         Bitmap bitmapTrans = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         bitmap.getPixels(pixels, 0, width, 0, 0, width, height);
