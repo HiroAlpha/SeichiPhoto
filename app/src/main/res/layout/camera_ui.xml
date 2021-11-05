@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="#000000">
+    android:background="@color/black">
 
     <ImageView
         android:id="@+id/cameraFlip"
@@ -25,11 +25,11 @@
         android:layout_height="75dp"
         android:layout_marginTop="30dp"
         android:layout_marginBottom="30dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/cameraSetting"
         app:layout_constraintHorizontal_weight="1"
         app:layout_constraintStart_toEndOf="@id/cameraFlip"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:srcCompat="@drawable/ic_baseline_camera_24"
         app:tint="#FFFFFF" />
 

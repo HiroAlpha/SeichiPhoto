@@ -1,102 +1,140 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mainLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <ImageView
-        android:id="@+id/originalImage"
-        android:layout_width="0dp"
-        android:layout_height="200dp"
-        android:layout_marginTop="5dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:ignore="ContentDescription" />
-
-    <ImageView
-        android:id="@+id/outlineImage"
-        android:layout_width="0dp"
-        android:layout_height="200dp"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginStart="10dp"
         android:layout_marginTop="10dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/originalImage"
-        tools:ignore="ContentDescription" />
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="10dp">
 
-    <TextView
-        android:id="@+id/opencvText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="@string/opencvCondition"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/outlineImage" />
+        <ImageView
+            android:id="@+id/outlineImage"
+            android:layout_width="0dp"
+            android:layout_height="200dp"
+            android:layout_marginTop="10dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/originalImage"
+            tools:ignore="ContentDescription" />
 
-    <TextView
-        android:id="@+id/opencvConsition"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="1dp"
-        android:text="@string/offline"
-        app:layout_constraintStart_toEndOf="@+id/opencvText"
-        app:layout_constraintTop_toTopOf="@+id/opencvText" />
+        <ImageView
+            android:id="@+id/originalImage"
+            android:layout_width="0dp"
+            android:layout_height="200dp"
+            android:layout_marginTop="5dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="ContentDescription" />
 
-    <TextView
-        android:id="@+id/conditionText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/imageCondition"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/opencvText" />
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/conditionLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            app:layout_constraintTop_toBottomOf="@+id/outlineImage"
+            app:layout_constraintStart_toStartOf="parent">
 
-    <TextView
-        android:id="@+id/imageCondition"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="1dp"
-        android:text="@string/notLoaded"
-        app:layout_constraintStart_toEndOf="@+id/conditionText"
-        app:layout_constraintTop_toTopOf="@+id/conditionText" />
+            <TextView
+                android:id="@+id/opencvText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/opencvCondition"
+                android:textColor="@color/black"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"/>
 
-    <TextView
-        android:id="@+id/convertText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="1dp"
-        android:text="@string/imageConvert"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/conditionText" />
+            <TextView
+                android:id="@+id/opencvCondition"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/offline"
+                app:layout_constraintTop_toTopOf="@id/opencvText"
+                app:layout_constraintStart_toEndOf="@id/opencvText"/>
 
-    <TextView
-        android:id="@+id/imageConvert"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="1dp"
-        android:text="@string/notLoaded"
-        app:layout_constraintStart_toEndOf="@+id/convertText"
-        app:layout_constraintTop_toTopOf="@+id/convertText" />
+            <TextView
+                android:id="@+id/imgConditionText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/imageCondition"
+                android:textColor="@color/black"
+                app:layout_constraintTop_toBottomOf="@id/opencvText"
+                app:layout_constraintStart_toStartOf="parent" />
 
-    <Button
-        android:id="@+id/getImage"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:text="@string/getImage"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/convertText" />
+            <TextView
+                android:id="@+id/imageCondition"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/notLoaded"
+                app:layout_constraintTop_toTopOf="@id/imgConditionText"
+                app:layout_constraintStart_toEndOf="@id/imgConditionText"/>
 
-    <Button
-        android:id="@+id/cameraStart"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="20dp"
-        android:text="Button"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+            <TextView
+                android:id="@+id/imgConvertText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/imageConvert"
+                android:textColor="@color/black"
+                app:layout_constraintTop_toBottomOf="@id/imgConditionText"
+                app:layout_constraintStart_toStartOf="parent"/>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+            <TextView
+                android:id="@+id/imageConvert"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/notLoaded"
+                app:layout_constraintTop_toTopOf="@id/imgConvertText"
+                app:layout_constraintStart_toEndOf="@id/imgConvertText"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <Button
+            android:id="@+id/getImage"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="@string/getImage"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/conditionLayout" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/cameraStart"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/camStart"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:shapeAppearanceOverlay="@style/rounded_50" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/ratioSpinner"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:hint="@string/ratio"
+            app:layout_constraintTop_toBottomOf="@+id/getImage"
+            tools:layout_editor_absoluteX="395dp">
+
+            <AutoCompleteTextView
+                android:id="@+id/ratioSelector"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="none" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</LinearLayout>

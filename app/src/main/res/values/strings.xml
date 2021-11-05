@@ -1,17 +1,10 @@
 <resources>
     <string name="app_name">SeichiPhoto</string>
-    <string name="getImage">画像取得</string>
-    <string name="opencvCondition">OpenCV状況 : </string>
-    <string name="imageCondition">画像取得状況 : </string>
-    <string name="imageConvert">画像変換状況 : </string>
-    <string name="online">online</string>
-    <string name="offline">offline</string>
-    <string name="OK">OK</string>
-    <string name="notLoaded">Image not loaded</string>
     <string name="imageIsNull">Image uri is null</string>
     <string name="unknownError">Unknown error has occured</string>
     <string name="openCVNot">ERROR:OpenCV Not Found</string>
     <string name="error_cameraPermission">ERROR : Camera permission denied</string>
     <string name="error_noBitmap">ERROR : Image not defined</string>
     <string name="error_cameraSession">ERROR : Faild to open camera session</string>
+    <string name="error_unexpectedRatio">ERROR : Unexpected image ratio</string>
 </resources>

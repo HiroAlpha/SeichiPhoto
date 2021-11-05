@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="getImage">画像取得</string>
+    <string name="camStart">カメラ起動</string>
+    <string name="ratio">アスペクト比</string>
+
+    <string name="opencvCondition">OpenCV状況 : </string>
+    <string name="imageCondition">画像取得状況 : </string>
+    <string name="imageConvert">画像変換状況 : </string>
+    <string name="online">online</string>
+    <string name="offline">offline</string>
+    <string name="OK">OK</string>
+    <string name="notLoaded">Image not loaded</string>
+    <string name="ratio4_3">4:3</string>
+    <string name="ratio16_9">16:9</string>
+</resources>

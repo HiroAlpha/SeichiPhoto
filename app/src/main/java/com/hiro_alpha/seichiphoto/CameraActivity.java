@@ -1,11 +1,15 @@
 package com.hiro_alpha.seichiphoto;
 
+import static androidx.camera.core.AspectRatio.RATIO_16_9;
+import static androidx.camera.core.AspectRatio.RATIO_4_3;
+
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
+import android.graphics.Point;
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
@@ -18,11 +22,14 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Parcelable;
 import android.util.Log;
+import android.util.Rational;
 import android.util.Size;
 import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.WindowInsets;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -30,6 +37,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.camera.core.AspectRatio;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraSelector;
@@ -67,7 +75,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
     private boolean rotate = false;
     private final String[] REQUIRED_PERMISSIONS = new String[]{"android.permission.CAMERA", "android.permission.WRITE_EXTERNAL_STORAGE"};
 
-    private ImageView overlay;
+    private ImageView overlayView;
     private ImageView takePhoto;
     private ImageView cameraFlip;
     private ImageView cameraSetting;
@@ -77,15 +85,19 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
     private Preview preview = null;
     private ImageCapture imageCapture = null;
 
-    private BitmapHandler handler;
+    private DataHandler dataHandler;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera);
 
-        handler = (BitmapHandler) this.getApplication();
-        Bitmap overlayImage = handler.getObj();
+        Intent intent = getIntent();
+        int previewX = intent.getIntExtra("WIDTH", 0);
+        int previewY = intent.getIntExtra("HEIGHT", 0);
+
+        dataHandler = (DataHandler) this.getApplication();
+        Bitmap overlayImage = dataHandler.getOverlayImage();
         //回転
         if (overlayImage.getWidth() > overlayImage.getHeight()){
             Matrix matrix = new Matrix();
@@ -97,9 +109,8 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
             rotate = true;
         }
 
-        overlay = findViewById(R.id.overlay);
-        overlay.setImageBitmap(overlayImage);
-        overlay.setOnTouchListener(this);
+        overlayView = findViewById(R.id.overlay);
+        overlayView.setImageBitmap(overlayImage);
 
         previewView = findViewById(R.id.previewView);
 
@@ -114,22 +125,40 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
 
         //権限確認
         if (checkPermissions()){
-            startCamera();
+            startCamera(previewX, previewY);
         } else {
             Toast.makeText(getApplicationContext() , getString(R.string.error_cameraPermission), Toast.LENGTH_LONG).show();
             finish();
         }
+
+        ViewGroup.LayoutParams layoutPreview = previewView.getLayoutParams();
+        layoutPreview.width = previewX;
+        layoutPreview.height = previewY;
+        previewView.setLayoutParams(layoutPreview);
+
+        ViewGroup.LayoutParams layoutOverlay = overlayView.getLayoutParams();
+        layoutOverlay.width = previewX;
+        layoutOverlay.height = previewY;
+        overlayView.setLayoutParams(layoutOverlay);
+
+        ViewTreeObserver observer = previewView.getViewTreeObserver();
+        observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                Log.d("Activity.CameraActivity", "X: "+ previewView.getWidth() + " Y: " + previewView.getHeight());
+            }
+        });
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
 
-        handler.cleanObj();
+        dataHandler.cleanOverlayImage();
     }
 
     //カメラ設定・開始
-    private void startCamera() {
+    private void startCamera(int previewX, int previewY) {
         final ListenableFuture<ProcessCameraProvider> cameraProviderFuture = ProcessCameraProvider.getInstance(this);
         Context context = this;
 
@@ -139,8 +168,17 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
                 try {
                     ProcessCameraProvider cameraProvider = cameraProviderFuture.get();
 
+                    //プレビュー設定（解像度変更）
                     preview = new Preview.Builder().build();
-                    imageCapture = new ImageCapture.Builder().build();
+
+                    //キャプチャー設定（アスペクト比変更）
+                    if (dataHandler.getCamRatio() == 0){
+
+                        imageCapture = new ImageCapture.Builder().setTargetAspectRatio(RATIO_4_3).build();
+                    } else if (dataHandler.getCamRatio() == 1){
+
+                        imageCapture = new ImageCapture.Builder().setTargetAspectRatio(RATIO_16_9).build();
+                    }
 
                     CameraSelector cameraSelector = new CameraSelector.Builder().requireLensFacing(CameraSelector.LENS_FACING_BACK).build();
 
@@ -190,8 +228,6 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
         }
 
         if (view == cameraSetting){
-
-
             finish();
         }
     }
@@ -199,13 +235,13 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
     @Override
     public boolean onTouch(View view, MotionEvent motionEvent) {
         //AF
-        if (view == overlay){
+        if (view == overlayView){
             if (motionEvent.getAction() == MotionEvent.ACTION_DOWN){
                 return true;
             }
 
             if (motionEvent.getAction() == MotionEvent.ACTION_UP){
-                //Log.d("debugLog", "X: " + motionEvent.getX() + ", Y: " + motionEvent.getY());
+                //Log.d("Activity.CameraActivity", "X: " + motionEvent.getX() + ", Y: " + motionEvent.getY());
 
                 CameraControl cameraControl = camera.getCameraControl();
 
