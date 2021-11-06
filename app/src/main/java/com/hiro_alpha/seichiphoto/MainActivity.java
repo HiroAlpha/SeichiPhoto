@@ -9,6 +9,8 @@ import android.graphics.Point;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -36,7 +38,7 @@ import org.opencv.core.Mat;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, TextWatcher {
 
     private Point imageRatio;
     private Bitmap overlayBitmap = null;
@@ -45,6 +47,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private AutoCompleteTextView ratioSelector;
     private ArrayAdapter<CharSequence> ratioAdapter;
     private Button getImage, cameraStart;
+
+    private DataHandler dataHandler;
 
     //OpenCV読み込み用
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
@@ -65,6 +69,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //DataHandler定義
+        dataHandler = (DataHandler) this.getApplication();
+
         //状態表示
         openCVCondition = findViewById(R.id.opencvCondition);
 
@@ -81,7 +88,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ratioAdapter = ArrayAdapter.createFromResource(this, R.array.ratio_array, android.R.layout.simple_spinner_dropdown_item);
         ratioSelector.setAdapter(ratioAdapter);
         ratioSelector.setText(getString(R.string.ratio4_3), false);
-        ratioSelector.addTextChangedListener(new OnTextChange());
+        ratioSelector.addTextChangedListener(this);
 
         getImage = findViewById(R.id.getImage);
         getImage.setOnClickListener(this);
@@ -120,34 +127,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             openCVCondition.setTextColor(Color.GREEN);
 
             mLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
-        }
-    }
-
-    @Override
-    public void onClick(View view) {
-        if (view == getImage){
-            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-            intent.addCategory(Intent.CATEGORY_OPENABLE);
-            intent.setType("image/*");
-            Intent chooserIntent = Intent.createChooser(intent, "単一画像の選択");
-
-            getImageLauncher.launch(chooserIntent);
-        }
-
-        if (view == cameraStart){
-            if (overlayBitmap != null) {
-                //ハンドラーにBitmapをセット
-                DataHandler dataHandler = (DataHandler) this.getApplication();
-                dataHandler.setOverlayImage(overlayBitmap);
-
-                //カメラ開始
-                Intent intent = new Intent(this, CameraActivity.class);
-                intent.putExtra("WIDTH", previewSize(imageRatio).x);
-                intent.putExtra("HEIGHT", previewSize(imageRatio).y);
-                startActivity(intent);
-            } else {
-                Toast.makeText(getApplicationContext() , getString(R.string.error_noBitmap), Toast.LENGTH_LONG).show();
-            }
         }
     }
 
@@ -219,19 +198,32 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     //背景透過
     private void makeTransparent(Bitmap bitmap, int width, int height){
-        int[] pixels = new int[width * height];
-        int color = Color.rgb(255,255,255);
+        //白
+        int color_white = Color.rgb(255,255,255);
+        //黒
+        int color_black = Color.rgb(0, 0, 0);
+        //赤
+        int color_red = Color.rgb(255, 0, 0);
 
+        int[] pixels = new int[width * height];
         Bitmap bitmapTrans = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         bitmap.getPixels(pixels, 0, width, 0, 0, width, height);
+
+        //色変換
         for (int y=0;y<height;y++) {
             for (int x = 0; x < width; x++) {
-                if (pixels[x + y * width] == color) {
+                //白 → 透明
+                if (pixels[x + y * width] == color_white) {
                     pixels[x + y * width] = 0;
+                }
+
+                //黒 → 赤
+                if (pixels[x + y * width] == color_black) {
+                    pixels[x + y * width] = color_red;
                 }
             }
         }
-        bitmapTrans.eraseColor(Color.argb(0,0,0,0));
+        //bitmapTrans.eraseColor(Color.argb(0,0,0,0));
         bitmapTrans.setPixels(pixels, 0, width, 0, 0, width, height);
 
         overlayBitmap = bitmapTrans;
@@ -314,49 +306,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     //カメラプレビューウィンドウサイズ設定
     private Point previewSize(Point ratio){
-
         LinearLayout layout = findViewById(R.id.mainLayout);
         int layoutWidth = layout.getWidth();
         int layoutHeight = layout.getHeight() - (int) new ConvertDp2Px().convert(135, this);
         //int dpi = getResources().getDisplayMetrics().densityDpi;
         //Log.d("Activity.MainActivity", "DPI: " + dpi);
         Log.d("Activity.MainActivity", "LayoutSize: " + layoutWidth +  ", " + layoutHeight);
-
-        /*
-        int screenWidth = 0;
-        int screenHeight = 0;
-        if (Build.VERSION.SDK_INT >= 30){
-
-            WindowMetrics windowMetrics = this.getWindowManager().getCurrentWindowMetrics();
-            Insets insets = windowMetrics.getWindowInsets()
-                    .getInsetsIgnoringVisibility(WindowInsets.Type.systemBars());
-
-            int width = windowMetrics.getBounds().width();
-            int height = windowMetrics.getBounds().height();
-            int statusBar = insets.top;
-
-            screenWidth = width;
-            screenHeight = height - statusBar - (int) new ConvertDp2Px().convert(135, this);
-        } else {
-
-            WindowManager wm = (WindowManager)getSystemService(WINDOW_SERVICE);
-            Display disp = wm.getDefaultDisplay();
-
-            Point realSize = new Point();
-            disp.getRealSize(realSize);
-
-            int width = realSize.x;
-            int height = realSize.y;
-
-            final Rect rect = new Rect();
-            Window window = this.getWindow();
-            window.getDecorView().getWindowVisibleDisplayFrame(rect);
-            int statusBar = rect.top;
-
-            screenWidth = width;
-            screenHeight = height - statusBar - (int) new ConvertDp2Px().convert(135, this);
-        }
-         */
 
         int previewWidth = layoutWidth;
         int previewHeight = (layoutWidth / ratio.x) * ratio.y;
@@ -371,5 +326,67 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Log.d("Activity.MainActivity", "Preview Size: " + previewWidth +  ", " + previewHeight);
 
         return new Point(previewWidth, previewHeight);
+    }
+
+    //その他
+    @Override
+    public void onClick(View view) {
+        if (view == getImage){
+            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            intent.setType("image/*");
+            Intent chooserIntent = Intent.createChooser(intent, "単一画像の選択");
+
+            getImageLauncher.launch(chooserIntent);
+        }
+
+        if (view == cameraStart){
+            if (overlayBitmap != null) {
+                //ハンドラーにBitmapをセット
+                dataHandler.setOverlayImage(overlayBitmap);
+
+                //カメラプレビューサイズ
+                Point ratio;
+                Log.d("Activity.OnTextChange", "Ratio Changed : " + dataHandler.getCamRatio());
+                if (dataHandler.getCamRatio() == 1){
+
+                    ratio = new Point(9, 16);
+                } else {
+
+                    ratio = new Point(3, 4);
+                }
+                Point resolution = previewSize(ratio);
+
+                //カメラ開始
+                Intent intent = new Intent(this, CameraActivity.class);
+                intent.putExtra("WIDTH", resolution.x);
+                intent.putExtra("HEIGHT", resolution.y);
+                startActivity(intent);
+            } else {
+                Toast.makeText(getApplicationContext() , getString(R.string.error_noBitmap), Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
+    @Override
+    public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+    }
+
+    @Override
+    public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+        String ratio = charSequence.toString();
+        int ratioId = 0;
+        if (ratio.equals("16:9")) {
+            ratioId = 1;
+        }
+
+        //ハンドラーにratioIdをセット
+        dataHandler.setCamRatio(ratioId);
+    }
+
+    @Override
+    public void afterTextChanged(Editable editable) {
+
     }
 }

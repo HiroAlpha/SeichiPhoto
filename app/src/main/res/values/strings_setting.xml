@@ -2,7 +2,7 @@
 <resources>
     <string name="getImage">画像取得</string>
     <string name="camStart">カメラ起動</string>
-    <string name="ratio">アスペクト比</string>
+    <string name="ratio">カメラアスペクト比</string>
 
     <string name="opencvCondition">OpenCV状況 : </string>
     <string name="imageCondition">画像取得状況 : </string>

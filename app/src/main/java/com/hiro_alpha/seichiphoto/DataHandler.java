@@ -2,6 +2,7 @@ package com.hiro_alpha.seichiphoto;
 
 import android.app.Application;
 import android.graphics.Bitmap;
+import android.util.Log;
 
 public class DataHandler extends Application {
 
@@ -27,7 +28,6 @@ public class DataHandler extends Application {
     }
 
     //アスペクト比
-
     public void setCamRatio(int camRatio) {
         this.camRatio = camRatio;
     }
